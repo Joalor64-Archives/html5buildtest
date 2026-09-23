@@ -89,6 +89,62 @@ jobs:
           name: ${{ matrix.target }}Build
           path: export/release/${{ matrix.target }}/bin
 
+  buildHTML5:
+    runs-on: ubuntu-latest
+    permissions: write-all
+
+    steps:
+      - uses: actions/checkout@main
+
+      - uses: krdlab/setup-haxe@master
+        with:
+          haxe-version: 4.3.7
+
+      - name: Restore Previous Cache
+        id: cache-build-restore
+        uses: actions/cache/restore@main
+        with:
+          path: |
+            .haxelib/
+            export/release/html5/haxe/
+            export/release/html5/obj/
+          key: cache-html5-release
+
+      - name: Set Cache Status
+        id: cache-status
+        run: echo "CACHE_HIT=${{ steps.cache-build-restore.outputs.cache-hit }}" >> $GITHUB_ENV
+
+      - name: Installing Libraries
+        run: haxe --interp -cp ./actions/libs-installer -D analyzer-optimize -main Main
+
+      - name: Create Version Tag
+        run: echo "${{github.run_id}}" > VERSION
+
+      - name: Compile
+        run: |
+          haxelib run lime build html5
+
+      - name: Clear Previous Cache
+        uses: actions/github-script@main
+        with:
+          script: await require('./actions/cache/clear-cache.js')({github, context}, 'cache-html5-release');
+
+      - name: Save Current Cache
+        id: cache-build-save
+        uses: actions/cache/save@main
+        with:
+          path: |
+            .haxelib/
+            export/release/html5/haxe/
+            export/release/html5/obj/
+          key: cache-html5-release
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@main
+        with:
+          name: html5Build
+          path: export/release/html5/
+
   buildAndroid:
     runs-on: ubuntu-latest
     permissions: write-all
