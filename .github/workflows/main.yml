@@ -24,7 +24,7 @@ jobs:
             title: macOS
             runs-on: macos-14
             artifact_path: export/release/macos/bin
-            artifact_name: macosBuild
+            artifact_name: macOSBuild
 
           - target: linux
             title: Linux
