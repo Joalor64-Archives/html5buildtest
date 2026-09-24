@@ -143,7 +143,7 @@ jobs:
         uses: actions/upload-artifact@main
         with:
           name: html5Build
-          path: export/release/html5/
+          path: export/release/html5/bin
 
   buildAndroid:
     runs-on: ubuntu-latest
